@@ -76,13 +76,13 @@ func checkField(tags []string, value reflect.Value, curValue interface{}, vType 
 		if len(length) == 0 {
 			typeD = TypeClob
 		}
-		v := curValue.(string)
+		v := curValue.(String)
 		if v == "" {
 			return "''", length, typeD, isInsert
 		}
 		res := "'" + v + "'"
 
-		return res, length, typeD, true
+		return string(res), length, typeD, true
 	}
 	switch vType.String() {
 	case "string":
