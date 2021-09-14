@@ -3,7 +3,7 @@ package tibero
 import (
 	"database/sql"
 	//
-	_ "eapi/reiway/odbc"
+	_ "github.com/alexbrainman/odbc"
 )
 
 const (
