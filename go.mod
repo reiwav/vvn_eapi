@@ -3,7 +3,7 @@ module eapi
 go 1.17
 
 require (
-	github.com/alexbrainman/odbc v0.0.0-20210605012845-39f8520b0d5f
+	github.com/alexbrainman/odbc v0.0.0-20170616052051-0ee187a7ebce
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/static v0.0.1
 	github.com/gin-gonic/gin v1.7.4

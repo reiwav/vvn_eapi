@@ -3,7 +3,6 @@ package tibero
 import (
 	"database/sql/driver"
 	"fmt"
-	"reflect"
 )
 
 type String string
@@ -13,7 +12,7 @@ func (n *String) Scan(value interface{}) error {
 		*n = ""
 		return nil
 	}
-	fmt.Println("========= LOOẠI ", reflect.TypeOf(value))
+
 	switch v := value.(type) {
 	case []uint8:
 		b := make([]byte, len(v))

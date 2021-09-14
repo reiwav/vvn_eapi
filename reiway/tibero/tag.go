@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"strings"
 	"time"
+
+	"github.com/gosimple/slug"
 )
 
 type Field struct {
@@ -69,9 +71,7 @@ func checkField(tags []string, value reflect.Value, curValue interface{}, vType 
 			length = tag1
 		}
 	}
-
-	switch vType.String() {
-	case "string":
+	if tags[0] == "password" {
 		var typeD = TypeNvachar
 		if len(length) == 0 {
 			typeD = TypeClob
@@ -83,6 +83,20 @@ func checkField(tags []string, value reflect.Value, curValue interface{}, vType 
 		res := "'" + v + "'"
 
 		return res, length, typeD, true
+	}
+	switch vType.String() {
+	case "string":
+		var typeD = TypeNvachar
+		if len(length) == 0 {
+			typeD = TypeClob
+		}
+		v := curValue.(string)
+		if v == "" {
+			return "''", length, typeD, isInsert
+		}
+		res := "'" + convertSlug(v) + "'"
+
+		return res, length, typeD, true
 	case "String":
 		var typeD = TypeNvachar
 		if len(length) == 0 {
@@ -92,7 +106,7 @@ func checkField(tags []string, value reflect.Value, curValue interface{}, vType 
 		if v == "" {
 			return "''", length, typeD, isInsert
 		}
-		res := "'" + v + "'"
+		res := "'" + convertSlug(string(v)) + "'"
 
 		return string(res), length, typeD, true
 	case "Bool":
@@ -144,7 +158,7 @@ func checkInsert(curValue interface{}, isInsert bool) (string, string, string, b
 	var length string
 	switch v := curValue.(type) {
 	case string:
-		resValue = "'" + v + "'"
+		resValue = "'" + convertSlug(v) + "'"
 		if v == "" && !isInsert {
 			isCheck = false
 		} else {
@@ -153,7 +167,7 @@ func checkInsert(curValue interface{}, isInsert bool) (string, string, string, b
 		dataType = TypeNvachar
 		length = "5000"
 	case String:
-		resValue = "'" + string(v) + "'"
+		resValue = "'" + convertSlug(string(v)) + "'"
 		if v == "" && !isInsert {
 			isCheck = false
 		} else {
@@ -196,4 +210,8 @@ func ConvertTimeToDate(v time.Time) string {
 	var format = "2006-01-02 15:04:05"
 	valFormat := v.Format(format)
 	return "TO_DATE('" + valFormat + "', 'YY/MM/DD HH24:MI:SS')"
+}
+
+func convertSlug(v string) string {
+	return slug.Make(v)
 }
