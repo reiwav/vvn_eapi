@@ -95,15 +95,17 @@ func GetByUserPass(usr, pwd string) (*User, error) {
 	var u = User{}
 	var where = make(map[string]string)
 	where["login"] = "'" + usr + "'"
-	where["password"] = "'" + Encrypt(pwd) + "'"
+	//where["password"] = "'" + Encrypt(pwd) + "'"
 	return &u, tableUser.SelectOne(where, "", 0, 0, &u)
 }
 
 func SelectUser(usr, pwd string) (*User, error) {
 	var where = make(map[string]string)
 	where["login"] = "'" + usr + "'"
+	//where["password"] = "'" + Encrypt(pwd) + "'"
 	var u = User{}
 	var rows, err = tableUser.SelectRows(where, nil, "", 0, 0)
+	fmt.Println(err)
 	if err != nil {
 		return nil, err
 	}

@@ -81,6 +81,7 @@ func (t *Table) SelectOne(where map[string]string, orderBy string, skip int, lim
 	if limit > 0 {
 		q = "SELECT * FROM (" + q + ")dt WHERE ROWNUM >= " + strconv.Itoa(skip) + " AND ROWNUM<=" + strconv.Itoa(limit) + ";"
 	}
+	fmt.Println(q)
 	row, err := t.DB.Query(q)
 	if err != nil {
 		return err
@@ -119,6 +120,7 @@ func (t *Table) SelectRows(where map[string]string, cols []string, orderBy strin
 
 func (t *Table) scanRowOne(v interface{}, row *sql.Rows) error {
 	for row.Next() {
+		fmt.Println("===== Vao 0:")
 		s := reflect.ValueOf(v).Elem()
 		fmt.Println("===== Vao 1:")
 		rt := reflect.TypeOf(v).Elem()
