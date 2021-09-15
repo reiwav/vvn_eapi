@@ -1,11 +1,13 @@
 package tibero
 
 import (
+	"fmt"
 	"time"
 )
 
 type IModel interface {
 	setID(id int64)
+	CheckID() error
 	BeforeCreate()
 	BeforeUpdate()
 	BeforeDelete()
@@ -27,6 +29,13 @@ func (b *BaseModel) BeforeCreate() {
 	var timeNow = time.Now()
 	b.CreatedAt = timeNow
 	b.UpdatedAt = timeNow
+}
+
+func (b *BaseModel) CheckID() error {
+	if b.ID == 0 {
+		return fmt.Errorf("ID not found")
+	}
+	return nil
 }
 
 func (b *BaseModel) GetDeletedAt() time.Time {

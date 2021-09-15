@@ -207,9 +207,12 @@ func (u *User) MarkDelete() error {
 }
 
 func GetByID(uID string) (*User, error) {
-	var u = User{}
+	var u = &User{}
 	where := make(map[string]string)
 	where["id"] = uID
 	var err = tableUser.SelectOne(where, "", 0, 0, &u)
-	return &u, err
+	if err != nil {
+		return nil, err
+	}
+	return u, u.CheckID()
 }

@@ -86,6 +86,9 @@ func (t *Table) SelectOne(where map[string]string, orderBy string, skip int, lim
 	if err != nil {
 		return err
 	}
+	if row != nil && row.Err() != nil {
+		return row.Err()
+	}
 	return t.scanRowOne(v, row)
 }
 

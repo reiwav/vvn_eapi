@@ -31,7 +31,11 @@ func SelectDistinct(where map[string]string, cols []string, res interface{}) err
 
 func SelecOne(where map[string]string, order string) (*Request, error) {
 	var res = &Request{}
-	return res, tableRequest.SelectOne(where, order, 0, 1, &res)
+	var err = tableRequest.SelectOne(where, order, 0, 1, &res)
+	if err != nil {
+		return nil, err
+	}
+	return res, res.CheckID()
 }
 
 func (r *Request) Insert() error {

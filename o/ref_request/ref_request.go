@@ -23,7 +23,11 @@ func SelectMany(where map[string]string, order string, skip, limit int) ([]RefRe
 
 func SelecOne(where map[string]string, order string) (*RefRequest, error) {
 	var res = &RefRequest{}
-	return res, tableRefRequest.SelectOne(where, order, 0, 1, &res)
+	err := tableRefRequest.SelectOne(where, order, 0, 1, &res)
+	if err != nil {
+		return nil, err
+	}
+	return res, res.CheckID()
 }
 
 func (r *RefRequest) Insert() error {

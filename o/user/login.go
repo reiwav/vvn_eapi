@@ -12,7 +12,9 @@ func GetByLogin(username, password string) (usr *User, err error) {
 		fmt.Println("=== VAO LOI2: ", err.Error())
 		return nil, rest.BadRequest("error.validation")
 	}
-
+	if !usr.Activated {
+		return nil, rest.BadRequest("account is not active")
+	}
 	var pwdEncryt = decrypt(usr.Password.String())
 	fmt.Println(pwdEncryt)
 	fmt.Println(usr.Password)
