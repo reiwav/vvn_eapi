@@ -37,10 +37,10 @@ func GetTable() *tibero.Table {
 
 type User struct {
 	tibero.BaseModel `rei:"inline"`
-	Login            tibero.String `json:"login" rei:"login"`
-	FirstName        tibero.String `json:"first_name" rei:"firstName"`
-	LastName         tibero.String `json:"last_name" rei:"lastName"`
-	Email            tibero.String `rei:"email" json:"email" `
+	Login            tibero.String `json:"login" rei:"login,300"`
+	FirstName        tibero.String `json:"firstName" rei:"first_name,300"`
+	LastName         tibero.String `json:"lastName" rei:"last_name,300"`
+	Email            tibero.String `rei:"email" json:"email,300" `
 	ImageURL         tibero.String `rei:"image_url" json:"imageUrl"`
 	Activated        tibero.Bool   `rei:"activated" json:"activated"`
 	LangKey          tibero.String `rei:"lang_key" json:"langKey"`
@@ -91,6 +91,38 @@ func Encrypt(stringToEncrypt string) (encryptedString string) {
 	return fmt.Sprintf("%x", ciphertext)
 }
 
+func decrypt(encryptedString string) (decryptedString string) {
+
+	key, _ := hex.DecodeString(Key)
+	enc, _ := hex.DecodeString(encryptedString)
+
+	//Create a new Cipher Block from the key
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	//Create a new GCM
+	aesGCM, err := cipher.NewGCM(block)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	//Get the nonce size
+	nonceSize := aesGCM.NonceSize()
+
+	//Extract the nonce from the encrypted data
+	nonce, ciphertext := enc[:nonceSize], enc[nonceSize:]
+
+	//Decrypt the data
+	plaintext, err := aesGCM.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return fmt.Sprintf("%s", plaintext)
+}
+
 func GetByUserPass(usr, pwd string) (*User, error) {
 	var u = User{}
 	var where = make(map[string]string)
@@ -102,9 +134,14 @@ func GetByUserPass(usr, pwd string) (*User, error) {
 func SelectUser(usr, pwd string) (*User, error) {
 	var where = make(map[string]string)
 	where["login"] = "'" + usr + "'"
-	//where["password"] = "'" + Encrypt(pwd) + "'"
+	where["password"] = "'" + Encrypt(pwd) + "'"
 	var u = User{}
-	var rows, err = tableUser.SelectRows(where, nil, "", 0, 0)
+	var cols = []string{
+		"id", "created_at", "updated_at", "deleted_at", "login", "first_name", "last_name",
+		"email", "image_url", "activated", "lang_key", "created_by", "lastModified_by",
+		"minio_endpoint", "minio_endpoint", "minio_key", "minio_secret",
+		"minio_use_ssl", "minio_bucket", "minio_prefix"}
+	var rows, err = tableUser.SelectRows(where, cols, "", 0, 0)
 	fmt.Println(err)
 	if err != nil {
 		return nil, err
@@ -116,7 +153,7 @@ func (u *User) mapValue(rows *sql.Rows) error {
 	for rows.Next() {
 		err := rows.Scan(&u.ID, &u.CreatedAt, &u.UpdatedAt, &u.DeletedAt, &u.Login, &u.FirstName,
 			&u.LastName, &u.Email, &u.ImageURL, &u.Activated, &u.LangKey, &u.CreatedBy, &u.LastModifiedBy,
-			&u.MinioEndpoint, &u.MinioKey, &u.MinioSecret, &u.MinioUseSSL, &u.MinioBucket, &u.MinioPrefix, &u.Password)
+			&u.MinioEndpoint, &u.MinioKey, &u.MinioSecret, &u.MinioUseSSL, &u.MinioBucket, &u.MinioPrefix)
 		if err != nil {
 			return err
 		}

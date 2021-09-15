@@ -7,13 +7,16 @@ import (
 )
 
 func GetByLogin(username, password string) (usr *User, err error) {
-	usr, err = SelectUser(username, password)
+	usr, err = GetByUserPass(username, password)
 	if err != nil || usr == nil {
 		fmt.Println("=== VAO LOI2: ", err.Error())
 		return nil, rest.BadRequest("error.validation")
 	}
-	var pwdEncryt = Encrypt(password)
-	if pwdEncryt != string(usr.Password) {
+
+	var pwdEncryt = decrypt(usr.Password.String())
+	fmt.Println(pwdEncryt)
+	fmt.Println(usr.Password)
+	if pwdEncryt != password {
 		return nil, rest.BadRequest("error.validation")
 	}
 	// if err := auth.ComparePassword(string(usr.Password), password); err != nil {

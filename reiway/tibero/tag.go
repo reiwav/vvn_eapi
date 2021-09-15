@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gosimple/slug"
+	"github.com/reiwav/x/utils/slug"
 )
 
 type Field struct {
@@ -72,10 +72,7 @@ func checkField(tags []string, value reflect.Value, curValue interface{}, vType 
 		}
 	}
 	if tags[0] == "password" {
-		var typeD = TypeNvachar
-		if len(length) == 0 {
-			typeD = TypeClob
-		}
+		var typeD = TypeClob
 		v := curValue.(String)
 		if v == "" {
 			return "''", length, typeD, isInsert
@@ -86,8 +83,8 @@ func checkField(tags []string, value reflect.Value, curValue interface{}, vType 
 	}
 	switch vType.String() {
 	case "string":
-		var typeD = TypeNvachar
-		if len(length) == 0 {
+		var typeD = Typevachar
+		if length == "" {
 			typeD = TypeClob
 		}
 		v := curValue.(string)
@@ -98,8 +95,8 @@ func checkField(tags []string, value reflect.Value, curValue interface{}, vType 
 
 		return res, length, typeD, true
 	case "String":
-		var typeD = TypeNvachar
-		if len(length) == 0 {
+		var typeD = Typevachar
+		if length == "" {
 			typeD = TypeClob
 		}
 		v := curValue.(String)
@@ -164,7 +161,7 @@ func checkInsert(curValue interface{}, isInsert bool) (string, string, string, b
 		} else {
 			isCheck = true
 		}
-		dataType = TypeNvachar
+		dataType = Typevachar
 		length = "5000"
 	case String:
 		resValue = "'" + convertSlug(string(v)) + "'"
@@ -173,7 +170,7 @@ func checkInsert(curValue interface{}, isInsert bool) (string, string, string, b
 		} else {
 			isCheck = true
 		}
-		dataType = TypeNvachar
+		dataType = Typevachar
 		length = "5000"
 	case time.Time:
 		var t = time.Time{}
@@ -200,8 +197,8 @@ func checkInsert(curValue interface{}, isInsert bool) (string, string, string, b
 		dataType = TypeBool
 	default:
 		isCheck = isInsert
-		dataType = TypeNClob
-		resValue = fmt.Sprintf("%v", curValue)
+		dataType = TypeClob
+		resValue = convertSlug(fmt.Sprintf("%v", curValue))
 	}
 	return resValue, length, dataType, isCheck
 }

@@ -31,11 +31,11 @@ const (
 )
 
 const (
-	TypeNumber  = "NUMBER"
-	TypeClob    = "CLOB"
-	TypeNClob   = "NCLOB"
-	TypeDate    = "DATE"
-	TypeBool    = "NUMBER(1) DEFAULT 0 NOT NULL"
-	TypeNvachar = "NVARCHAR"
-	TypeFloat   = "FLOAT"
+	TypeNumber = "NUMBER"
+	TypeClob   = "CLOB"
+	TypeNClob  = "NCLOB"
+	TypeDate   = "DATE"
+	TypeBool   = "NUMBER(1) DEFAULT 0 NOT NULL"
+	Typevachar = "VARCHAR"
+	TypeFloat  = "FLOAT"
 )

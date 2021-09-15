@@ -115,20 +115,17 @@ func (t *Table) SelectRows(where map[string]string, cols []string, orderBy strin
 	if limit > 0 {
 		q = "SELECT * FROM (" + q + ")dt WHERE ROWNUM >= " + strconv.Itoa(skip) + " AND ROWNUM<=" + strconv.Itoa(limit) + ";"
 	}
+	fmt.Println(q)
 	return t.DB.Query(q)
 }
 
 func (t *Table) scanRowOne(v interface{}, row *sql.Rows) error {
 	for row.Next() {
-		fmt.Println("===== Vao 0:")
 		s := reflect.ValueOf(v).Elem()
-		fmt.Println("===== Vao 1:")
 		rt := reflect.TypeOf(v).Elem()
-		fmt.Println("===== Vao 2:")
 		columns := t.getColumns(s, rt)
 		err := row.Scan(columns...)
 		if err != nil {
-			fmt.Println("===== Vao Loi:", err.Error())
 			return err
 		}
 		row.Close()
@@ -153,13 +150,10 @@ func (t *Table) scanRows(v interface{}, r *sql.Rows) error {
 	if reflect.Slice != sliceType.Kind() {
 		return fmt.Errorf("%q must be a slice: %w", sliceType.String(), "not is slice")
 	}
-
 	sliceVal := reflect.Indirect(reflect.ValueOf(v))
 	itemType := sliceType.Elem()
 	var i = 1
-	fmt.Println("== Vòng ", "ĐẾN ĐÂY")
 	for r.Next() {
-		fmt.Println("== Vòng ", fmt.Sprintf("%v", i))
 		sliceItem := reflect.New(itemType).Elem()
 		cols := t.getColumns(sliceItem, reflect.TypeOf(sliceItem))
 		err := r.Scan(cols...)
@@ -268,6 +262,7 @@ func (t *Table) SelectDistinct(where map[string]string, columns []string, v inte
 	}
 	var q = fmt.Sprintf(SelectDistinct, cols, t.TableName, qDate)
 	rows, err := t.DB.Query(q)
+	fmt.Println("Distinic: ", q)
 	if err != nil {
 		return err
 	}

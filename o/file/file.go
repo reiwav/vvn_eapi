@@ -47,10 +47,10 @@ func (r *File) UpdateByID() error {
 
 type File struct {
 	tibero.BaseModel `rei:"inline"`
-	RequestID        tibero.String `rei:"request_id"  json:"requestID"`
-	FilePath         tibero.String `rei:"file_path"  json:"filePath"`
+	RequestID        tibero.String `rei:"request_id,10000"  json:"requestID"`
+	FilePath         tibero.String `rei:"file_path,10000"  json:"filePath"`
 	FileRefer        int64         `rei:"file_refer"  json:"fileRefer"`
-	Hash             tibero.String `rei:"hash" json:"hash"`
-	Type             tibero.String `rei:"type" json:"type"`
-	Version          tibero.String `rei:"version"  json:"version"`
+	Hash             tibero.String `rei:"hash,10000" json:"hash"`
+	Type             tibero.String `rei:"type,5000" json:"type"`
+	Version          tibero.String `rei:"version,5000"  json:"version"`
 }

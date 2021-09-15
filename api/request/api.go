@@ -30,18 +30,21 @@ type Ul struct {
 
 func (s *RequestServer) handleType(ctx *gin.Context) {
 	var cols = []string{"request_type"}
-	var reqs, _ = request.SelectDistinct(nil, cols)
+	var res = []struct {
+		RequestType string `json:"request_type"`
+	}{}
+	var err = request.SelectDistinct(nil, cols, &res)
 	var uls = []Ul{}
-	if len(reqs) == 0 {
+	if err != nil {
 		uls = append(uls, Ul{
 			ID:   1,
 			Name: "EMPTY",
 		})
 	} else {
-		for i, val := range reqs {
+		for i, val := range res {
 			uls = append(uls, Ul{
 				ID:   i,
-				Name: string(val),
+				Name: string(val.RequestType),
 			})
 		}
 	}
@@ -50,18 +53,21 @@ func (s *RequestServer) handleType(ctx *gin.Context) {
 
 func (s *RequestServer) handleFakeCodes(ctx *gin.Context) {
 	var cols = []string{"fake_code"}
-	var reqs, _ = request.SelectDistinct(nil, cols)
+	var res = []struct {
+		FakeCode string `json:"fake_code"`
+	}{}
+	var err = request.SelectDistinct(nil, cols, &res)
 	var uls = []Ul{}
-	if len(reqs) == 0 {
+	if err != nil {
 		uls = append(uls, Ul{
 			ID:   1,
 			Name: "EMPTY",
 		})
 	} else {
-		for i, val := range reqs {
+		for i, val := range res {
 			uls = append(uls, Ul{
 				ID:   i,
-				Name: string(val),
+				Name: string(val.FakeCode),
 			})
 		}
 	}

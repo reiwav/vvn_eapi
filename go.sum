@@ -1,3 +1,5 @@
+github.com/alexbrainman/odbc v0.0.0-20170616052051-0ee187a7ebce h1:z93NTHR1VHGxhDantB4SfAwBl5BONGvAk0+3lv+wiTQ=
+github.com/alexbrainman/odbc v0.0.0-20170616052051-0ee187a7ebce/go.mod h1:JFyGMphCGBCWdWj1xd43t1yv/llBHSNFBqBo5Sc5zvU=
 github.com/alexbrainman/odbc v0.0.0-20210605012845-39f8520b0d5f h1:qJp6jWdG+PBNCDtIwRpspahMaZ3hlfde/25ExBORKso=
 github.com/alexbrainman/odbc v0.0.0-20210605012845-39f8520b0d5f/go.mod h1:c5eyz5amZqTKvY3ipqerFO/74a/8CYmXOahSr40c+Ww=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -58,6 +60,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/reiwav/x v0.0.0-20210907145112-e29ef59091b1 h1:dZbtqYewXC6nz5W7MXcMs/OMBpcUa9BAjMyvVCwXCI8=
 github.com/reiwav/x v0.0.0-20210907145112-e29ef59091b1/go.mod h1:FYfim82VM0CXMckF8kF+wlEVnaPLaFFh+oER0AwaEVI=
+github.com/reiwav/x v0.0.0-20210915165155-972e59462a6f h1:zOdPUY0EJJJCB5ujBvsnnpclvRP8j8z/MPNtY55w84E=
+github.com/reiwav/x v0.0.0-20210915165155-972e59462a6f/go.mod h1:FYfim82VM0CXMckF8kF+wlEVnaPLaFFh+oER0AwaEVI=
 github.com/rs/cors v1.8.0 h1:P2KMzcFwrPoSjkF1WLRPsp3UMLyql8L4v9hQpVeK5so=
 github.com/rs/cors v1.8.0/go.mod h1:EBwu+T5AvHOcXwvZIkQFjUN6s8Czyqw12GL/Y0tUyRM=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

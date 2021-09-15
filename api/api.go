@@ -62,7 +62,8 @@ func handleAuthenticate(ctx *gin.Context) {
 }
 
 func handleGetRequest(ctx *gin.Context) {
-	var rqID = ctx.Query("request_id")
+	var rqID = ctx.Params.ByName("request_id")
+	fmt.Println("ID: ", rqID)
 	var where = make(map[string]string)
 	where["id"] = rqID
 	var req, err = request.SelecOne(where, "")
@@ -75,7 +76,7 @@ func handleGetRequest(ctx *gin.Context) {
 }
 
 func handleGetImage(ctx *gin.Context) {
-	var rqID = ctx.Query("image_id")
+	var rqID = ctx.Params.ByName("image_id")
 	var where = make(map[string]string)
 	where["id"] = rqID
 	var files, _ = file.SelecOne(where, "")
