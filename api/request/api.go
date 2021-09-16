@@ -45,8 +45,13 @@ func (s *RequestServer) handleType(ctx *gin.Context) {
 		for i, val := range res {
 			if val.RequestType != "" {
 				uls = append(uls, Ul{
-					ID:   i,
+					ID:   i + 1,
 					Name: string(val.RequestType),
+				})
+			} else {
+				uls = append(uls, Ul{
+					ID:   i + 1,
+					Name: "EMPTY",
 				})
 			}
 		}
@@ -70,8 +75,13 @@ func (s *RequestServer) handleFakeCodes(ctx *gin.Context) {
 		for i, val := range res {
 			if val.FakeCode != "" {
 				uls = append(uls, Ul{
-					ID:   i,
+					ID:   i + 1,
 					Name: string(val.FakeCode),
+				})
+			} else {
+				uls = append(uls, Ul{
+					ID:   i + 1,
+					Name: "EMPTY",
 				})
 			}
 

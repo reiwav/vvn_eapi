@@ -6,19 +6,26 @@ package odbc
 
 import (
 	"database/sql/driver"
-	"syscall"
+	"strings"
 	"unsafe"
 
 	"github.com/alexbrainman/odbc/api"
 )
 
 type Conn struct {
-	h   api.SQLHDBC
-	tx  *Tx
-	bad bool
+	h                api.SQLHDBC
+	tx               *Tx
+	bad              bool
+	isMSAccessDriver bool
 }
 
+var accessDriverSubstr = strings.ToUpper(strings.Replace("DRIVER={Microsoft Access Driver", " ", "", -1))
+
 func (d *Driver) Open(dsn string) (driver.Conn, error) {
+	if d.initErr != nil {
+		return nil, d.initErr
+	}
+
 	var out api.SQLHANDLE
 	ret := api.SQLAllocHandle(api.SQL_HANDLE_DBC, api.SQLHANDLE(d.h), &out)
 	if IsError(ret) {
@@ -27,15 +34,16 @@ func (d *Driver) Open(dsn string) (driver.Conn, error) {
 	h := api.SQLHDBC(out)
 	drv.Stats.updateHandleCount(api.SQL_HANDLE_DBC, 1)
 
-	b := syscall.StringByteSlice(dsn)
+	b := api.StringToUTF16(dsn)
 	ret = api.SQLDriverConnect(h, 0,
-		(*api.SQLCHAR)(unsafe.Pointer(&b[0])), api.SQL_NTS,
+		(*api.SQLWCHAR)(unsafe.Pointer(&b[0])), api.SQL_NTS,
 		nil, 0, nil, api.SQL_DRIVER_NOPROMPT)
 	if IsError(ret) {
 		defer releaseHandle(h)
 		return nil, NewError("SQLDriverConnect", h)
 	}
-	return &Conn{h: h}, nil
+	isAccess := strings.Contains(strings.ToUpper(strings.Replace(dsn, " ", "", -1)), accessDriverSubstr)
+	return &Conn{h: h, isMSAccessDriver: isAccess}, nil
 }
 
 func (c *Conn) Close() (err error) {

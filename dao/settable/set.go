@@ -5,6 +5,7 @@ import (
 	"eapi/o/ref_request"
 	"eapi/o/request"
 	"eapi/o/user"
+	"eapi/reiway/tibero"
 )
 
 func CreateAllTable() {
@@ -14,6 +15,9 @@ func CreateAllTable() {
 	ref_request.NewTable()
 	return
 	var usr = user.User{
+		BaseModel: tibero.BaseModel{
+			ID: 1,
+		},
 		Login:          "admin",
 		Password:       "admin",
 		FirstName:      "Admin",
@@ -23,15 +27,18 @@ func CreateAllTable() {
 		LangKey:        "vi",
 		CreatedBy:      "system",
 		LastModifiedBy: "admin",
-		MinioEndpoint:  "http://103.143.207.45:8082",
+		MinioEndpoint:  "http://103.143.207.79:8082",
 		MinioKey:       "admin",
 		MinioSecret:    "wooribank@minio",
 		MinioUseSSL:    false,
 		MinioBucket:    "ekyc",
 		MinioPrefix:    "woori",
 	}
-	usr.Create()
+	usr.Update(false)
 	var usr1 = user.User{
+		BaseModel: tibero.BaseModel{
+			ID: 2,
+		},
 		Login:          "user",
 		Password:       "user",
 		FirstName:      "user",
@@ -48,5 +55,5 @@ func CreateAllTable() {
 		MinioBucket:    "",
 		MinioPrefix:    "",
 	}
-	usr1.Create()
+	usr1.Update(false)
 }

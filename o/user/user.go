@@ -186,7 +186,7 @@ func (u *User) Create() error {
 }
 
 func (u *User) Update(isUpPass bool) error {
-	if u.Password != "" && isUpPass {
+	if u.Password != "" {
 		//pwd, _ := auth.GererateHashedPassword(string(u.Password))
 		pwd := Encrypt(string(u.Password))
 		u.Password = tibero.String(pwd)

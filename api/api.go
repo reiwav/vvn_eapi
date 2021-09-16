@@ -2,6 +2,8 @@ package api
 
 import (
 	"eapi/api/admin"
+	"eapi/api/shared"
+	"eapi/dao"
 	"eapi/dao/settable"
 	"eapi/mid"
 	"eapi/o/file"
@@ -11,6 +13,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	minio "github.com/minio/minio-go"
 
 	"eapi/api/auth"
 	apiRq "eapi/api/request"
@@ -68,10 +72,27 @@ func handleGetRequest(ctx *gin.Context) {
 	where["id"] = rqID
 	var req, err = request.SelecOne(where, "")
 	rest.AssertNil(err)
+	var usr = mid.GetMyUser(ctx)
 	where = make(map[string]string)
 	where["file_refer"] = rqID
 	var files, _ = file.SelectMany(where, " id desc", 0, 0)
-	req.Files = files
+	var fileNews = make([]file.File, len(files))
+	var storage, err1 = getMiniStorage(usr.MinioEndpoint.String(), string(usr.MinioKey), string(usr.MinioSecret), string(usr.MinioBucket), bool(usr.MinioUseSSL))
+	rest.AssertNil(err1)
+	for i, val := range files {
+		url := "N/A"
+		if val.FilePath != "" {
+			url, err = storage.GetURL(ctx, string(val.FilePath), time.Duration(30)*time.Second)
+			fmt.Println("==============", url)
+			if err != nil {
+				rest.AssertNil(fmt.Errorf("Gen url %v \n", err))
+			}
+			val.FilePath = tibero.String(url)
+		}
+
+		fileNews[i] = val
+	}
+	req.Files = fileNews
 	js.SendString(ctx, req)
 }
 
@@ -79,8 +100,37 @@ func handleGetImage(ctx *gin.Context) {
 	var rqID = ctx.Params.ByName("image_id")
 	var where = make(map[string]string)
 	where["id"] = rqID
-	var files, _ = file.SelecOne(where, "")
+	var files, err = file.SelecOne(where, "")
+	rest.AssertNil(err)
+	if files != nil {
+		var usr = mid.GetMyUser(ctx)
+		var storage, err1 = getMiniStorage(usr.MinioEndpoint.String(), string(usr.MinioKey), string(usr.MinioSecret), string(usr.MinioBucket), bool(usr.MinioUseSSL))
+		rest.AssertNil(err1)
+		url := "N/A"
+		if files.FilePath != "" {
+			url, err = storage.GetURL(ctx, string(files.FilePath), time.Duration(30)*time.Second)
+			fmt.Println("==============", url)
+			if err != nil {
+				rest.AssertNil(fmt.Errorf("Gen url %v \n", err))
+			}
+			files.FilePath = tibero.String(url)
+		}
+	}
 	js.SendString(ctx, files)
+}
+
+func getMiniStorage(endpoint, minioKey, minioSecret, minioBucket string, minioUseSSL bool) (*dao.MinioStorage, error) {
+	if strings.Contains(string(endpoint), "https://") {
+		endpoint = strings.ReplaceAll(endpoint, "https://", "")
+	} else if strings.Contains(string(endpoint), "http://") {
+		endpoint = strings.ReplaceAll(endpoint, "http://", "")
+	}
+	minioClient, err := minio.New(endpoint, minioKey, minioSecret, minioUseSSL)
+	if err != nil {
+		return nil, err
+	}
+	var storage = dao.NewMinioStorage(minioClient, minioBucket)
+	return storage, nil
 }
 
 func handleAccount(ctx *gin.Context) {
@@ -111,13 +161,23 @@ func handleRequests(ctx *gin.Context) {
 	var size = web.MustGetInt64("size", q)
 	var sorts = ctx.QueryArray("sort")
 	var oderBy string
+	var req = request.Request{}
 	if len(sorts) > 0 {
 		for _, val := range sorts {
-			var sort1s = strings.Split(val, ",")
-			if len(sorts) > 0 {
-				oderBy = sort1s[0] + " " + sort1s[1]
+			var ordField string
+			if strings.Contains(val, ",") {
+				var sort1s = strings.Split(val, ",")
+				fmt.Println(sort1s)
+				var fieldJson = sort1s[0]
+				colTibero := shared.GetFieldNameTibero(fieldJson, req)
+				ordField = colTibero + " " + sort1s[1]
 			} else {
-				oderBy = sort1s[0] + " asc"
+				ordField = val + " asc"
+			}
+			if oderBy != "" {
+				oderBy += ", " + ordField
+			} else {
+				oderBy += ordField
 			}
 		}
 
@@ -157,6 +217,25 @@ func handleImages(ctx *gin.Context) {
 	var sorts = strings.Split(ctx.Query("sort"), ",")
 	var oderBy = sorts[0] + " " + sorts[1]
 	var res, _ = file.SelectMany(nil, oderBy, int(page*size), int(size))
+	if len(res) > 0 {
+		var usr = mid.GetMyUser(ctx)
+		var storage, err1 = getMiniStorage(usr.MinioEndpoint.String(), string(usr.MinioKey), string(usr.MinioSecret), string(usr.MinioBucket), bool(usr.MinioUseSSL))
+		rest.AssertNil(err1)
+
+		var fileNews = make([]file.File, len(res))
+		for i, val := range res {
+			if val.FilePath != "" {
+				url, err := storage.GetURL(ctx, string(val.FilePath), time.Duration(30)*time.Second)
+				fmt.Println("==============", url)
+				if err != nil {
+					rest.AssertNil(fmt.Errorf("Gen url %v \n", err))
+				}
+				val.FilePath = tibero.String(url)
+			}
+			fileNews[i] = val
+		}
+		res = fileNews
+	}
 	js.SendString(ctx, res)
 }
 
