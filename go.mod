@@ -10,7 +10,6 @@ require (
 	github.com/gin-gonic/gin v1.7.4
 	github.com/golang/glog v1.0.0
 	github.com/reiwav/x v0.0.0-20210915165155-972e59462a6f
-	//github.com/reiwav/x v0.0.0-20210907145112-e29ef59091b1
 	github.com/rs/cors v1.8.0
 )
 
