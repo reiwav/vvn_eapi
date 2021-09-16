@@ -3,6 +3,7 @@ package request
 import (
 	"eapi/mid"
 	"eapi/o/request"
+	"eapi/reiway/tibero"
 
 	"github.com/reiwav/x/rest"
 
@@ -31,7 +32,7 @@ type Ul struct {
 func (s *RequestServer) handleType(ctx *gin.Context) {
 	var cols = []string{"request_type"}
 	var res = []struct {
-		RequestType string `json:"request_type"`
+		RequestType tibero.String `json:"request_type"`
 	}{}
 	var err = request.SelectDistinct(nil, cols, &res)
 	var uls = []Ul{}
@@ -42,10 +43,12 @@ func (s *RequestServer) handleType(ctx *gin.Context) {
 		})
 	} else {
 		for i, val := range res {
-			uls = append(uls, Ul{
-				ID:   i,
-				Name: string(val.RequestType),
-			})
+			if val.RequestType != "" {
+				uls = append(uls, Ul{
+					ID:   i,
+					Name: string(val.RequestType),
+				})
+			}
 		}
 	}
 	s.SendString(ctx, uls)
@@ -54,7 +57,7 @@ func (s *RequestServer) handleType(ctx *gin.Context) {
 func (s *RequestServer) handleFakeCodes(ctx *gin.Context) {
 	var cols = []string{"fake_code"}
 	var res = []struct {
-		FakeCode string `json:"fake_code"`
+		FakeCode tibero.String `json:"fake_code"`
 	}{}
 	var err = request.SelectDistinct(nil, cols, &res)
 	var uls = []Ul{}
@@ -65,10 +68,13 @@ func (s *RequestServer) handleFakeCodes(ctx *gin.Context) {
 		})
 	} else {
 		for i, val := range res {
-			uls = append(uls, Ul{
-				ID:   i,
-				Name: string(val.FakeCode),
-			})
+			if val.FakeCode != "" {
+				uls = append(uls, Ul{
+					ID:   i,
+					Name: string(val.FakeCode),
+				})
+			}
+
 		}
 	}
 	s.SendString(ctx, uls)

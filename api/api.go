@@ -69,7 +69,7 @@ func handleGetRequest(ctx *gin.Context) {
 	var req, err = request.SelecOne(where, "")
 	rest.AssertNil(err)
 	where = make(map[string]string)
-	where["request_id"] = rqID
+	where["file_refer"] = rqID
 	var files, _ = file.SelectMany(where, " id desc", 0, 0)
 	req.Files = files
 	js.SendString(ctx, req)
