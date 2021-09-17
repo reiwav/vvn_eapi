@@ -18,7 +18,10 @@ type localFileSystem struct {
 func StaticServe(urlPrefix string) gin.HandlerFunc {
 	fileserver := LocalFile(urlPrefix)
 	return func(c *gin.Context) {
-		fileserver.ServeHTTP(c.Writer, c.Request)
+		if !strings.Contains(c.Request.URL.Path, "/api/") {
+			fileserver.ServeHTTP(c.Writer, c.Request)
+		}
+
 	}
 }
 
@@ -34,9 +37,7 @@ func (l localFileSystem) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if l.exists(r.URL.Path) {
 		l.fs.ServeHTTP(w, r)
 	} else {
-		if strings.Contains(r.URL.Path, "/fail") || strings.Contains(r.URL.Path, "/success") {
-			http.ServeFile(w, r, l.index)
-		}
+		http.ServeFile(w, r, l.index)
 	}
 }
 

@@ -3,35 +3,34 @@ package main
 import (
 	// 1. init first
 	_ "eapi/init2"
+	"eapi/mid"
 
 	//
 	"eapi/common"
 	"os"
 
 	//2. middle
-	"eapi/mid"
+
 	//3. iniit 2nd
 	"eapi/api"
 
 	//"eapi/system"
-	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
-
-	//"github.com/rs/cors"
-
 	cors "github.com/rs/cors/wrapper/gin"
+	//"github.com/rs/cors"
 	//"net/http"
 )
 
 func main() {
 	router := gin.New()
 
-	router.Use(static.Serve("/", static.LocalFile("./admin", true)))
+	router.Use(common.StaticServe("./admin"))
 	router.Use(cors.AllowAll(), gin.Logger(), mid.Recovery())
 	//api
 	rootAPI := router.Group("/api")
-	api.InitApi(rootAPI)
+	api.InitApi(rootAPI, router)
+
 	//ws
 	err := router.Run(common.ConfigSystemCache.Port)
 	if err != nil {

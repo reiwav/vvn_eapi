@@ -65,6 +65,14 @@ func Serve(urlPrefix string, fs ServeFileSystem) gin.HandlerFunc {
 		if fs.Exists(urlPrefix, c.Request.URL.Path) {
 			fileserver.ServeHTTP(c.Writer, c.Request)
 			c.Abort()
+		} else {
+			//fmt.Println("===== URL", c.Request.URL.Path)
+			if strings.Contains(c.Request.URL.Path, "/image/") {
+				name := "./admin/" + INDEX
+				http.ServeFile(c.Writer, c.Request, name) // đẩy thằng file index xuống
+				//fmt.Println("===== END ==== ")
+				c.Abort()
+			}
 		}
 	}
 }

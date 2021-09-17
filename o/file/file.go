@@ -26,7 +26,7 @@ func UnsafeSelectMany(cells, where, order string, skip, limit int) ([]File, erro
 
 func SelecOne(where map[string]string, order string) (*File, error) {
 	var res = &File{}
-	err := tableFile.SelectOne(where, order, 0, 1, &res)
+	err := tableFile.SelectOne(where, order, 0, 0, &res)
 	if err != nil {
 		return nil, err
 	}

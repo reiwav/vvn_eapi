@@ -31,7 +31,7 @@ var logData = mlog.NewTagLog("Done-Payment")
 
 var js = rest.JsonRender{}
 
-func InitApi(root *gin.RouterGroup) {
+func InitApi(root *gin.RouterGroup, router *gin.Engine) {
 	settable.CreateAllTable()
 	admin.NewAdminServer(root, "admin")
 	auth.NewAuthenServer(root, "account")
@@ -44,6 +44,7 @@ func InitApi(root *gin.RouterGroup) {
 	root.GET("/requests", handleRequests)
 	root.GET("/requests/:request_id", handleGetRequest)
 	root.GET("/images/:image_id", handleGetImage)
+	//router.Use(mid.AuthBasicJwt("", true)).GET("/image/:id/view", HandleGetImageView)
 	root.GET("/images", handleImages)
 
 }
@@ -102,6 +103,32 @@ func handleGetImage(ctx *gin.Context) {
 	where["id"] = rqID
 	var files, err = file.SelecOne(where, "")
 	rest.AssertNil(err)
+	if files != nil {
+		var usr = mid.GetMyUser(ctx)
+		var storage, err1 = getMiniStorage(usr.MinioEndpoint.String(), string(usr.MinioKey), string(usr.MinioSecret), string(usr.MinioBucket), bool(usr.MinioUseSSL))
+		rest.AssertNil(err1)
+		url := "N/A"
+		if files.FilePath != "" {
+			url, err = storage.GetURL(ctx, string(files.FilePath), time.Duration(30)*time.Second)
+			fmt.Println("==============", url)
+			if err != nil {
+				rest.AssertNil(fmt.Errorf("Gen url %v \n", err))
+			}
+			files.FilePath = tibero.String(url)
+		}
+	}
+	js.SendString(ctx, files)
+}
+
+func HandleGetImageView(ctx *gin.Context) {
+	fmt.Println(ctx.Params)
+	var rqID = ctx.Params.ByName("id")
+	var where = make(map[string]string)
+	where["id"] = rqID
+	var files, err = file.SelecOne(where, "")
+
+	rest.AssertNil(err)
+
 	if files != nil {
 		var usr = mid.GetMyUser(ctx)
 		var storage, err1 = getMiniStorage(usr.MinioEndpoint.String(), string(usr.MinioKey), string(usr.MinioSecret), string(usr.MinioBucket), bool(usr.MinioUseSSL))
@@ -203,9 +230,13 @@ func handleRequests(ctx *gin.Context) {
 	if createdAtGt != "" && createdAtLt != "" {
 		var _, start = ParseTimeQuery(createdAtGt)
 		var _, end = ParseTimeQuery(createdAtLt)
-		where += " AND created_at between TO_DATE('" + start + "') AND TO_DATE('" + end + "')"
+		where += " AND created_at between " + start + " AND " + end
 	}
-	var res, err = request.SelectCustomMany(where, oderBy, int(page*size), int(size))
+	var skip = int(page * size)
+	if skip <= 0 {
+		skip = 0
+	}
+	var res, err = request.SelectCustomMany(where, oderBy, skip, int(size))
 	fmt.Println("======== REQUESTS", err)
 	js.SendString(ctx, res)
 }

@@ -109,7 +109,7 @@ func errorChecking(tokenParam, tyRole string) (*MyCustomClaims, interface{}, err
 	var token, err = getTokenJwt(tokenParam)
 	if token.Valid {
 		if claim, ok := token.Claims.(*MyCustomClaims); ok {
-			fmt.Println("USER ID: ", claim.UserID)
+
 			var dataUser, err = user.GetByID(claim.UserID)
 			fmt.Println("USER : ", dataUser)
 			if err != nil {
