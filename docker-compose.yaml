@@ -6,8 +6,11 @@ services:
         context: .
       environment: 
         - "SERVER_API_URL=localhost:3379"
-      volumes:
+      volumes: 
         - "./config.json:/go/src/app/eapi/config.json"
+        - "./binary/libtbodbc.so:/usr/lib/odbc/libtbodbc.so"
+        - "./binary/odbc.ini:/etc/odbc.ini"
+        - "./binary/odbcinst.ini:/etc/odbcinst.ini"
       ports:
         - "3379:3000"
      

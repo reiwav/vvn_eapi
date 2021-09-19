@@ -151,7 +151,6 @@ func NewV4(endpoint string, accessKeyID, secretAccessKey string, secure bool) (*
 // New - instantiate minio client, adds automatic verification of signature.
 func New(endpoint, accessKeyID, secretAccessKey string, secure bool) (*Client, error) {
 	creds := credentials.NewStaticV4(accessKeyID, secretAccessKey, "")
-	fmt.Println("====" + endpoint + "=" + accessKeyID + "=" + secretAccessKey)
 	clnt, err := privateNew(endpoint, creds, secure, "", BucketLookupAuto)
 	if err != nil {
 		return nil, err

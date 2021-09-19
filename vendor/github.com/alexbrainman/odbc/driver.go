@@ -16,8 +16,7 @@ var drv Driver
 
 type Driver struct {
 	Stats
-	h       api.SQLHENV // environment handle
-	initErr error
+	h api.SQLHENV // environment handle
 }
 
 func initDriver() error {
@@ -30,10 +29,7 @@ func initDriver() error {
 		return NewError("SQLAllocHandle", api.SQLHENV(in))
 	}
 	drv.h = api.SQLHENV(out)
-	err := drv.Stats.updateHandleCount(api.SQL_HANDLE_ENV, 1)
-	if err != nil {
-		return err
-	}
+	drv.Stats.updateHandleCount(api.SQL_HANDLE_ENV, 1)
 
 	// will use ODBC v3
 	ret = api.SQLSetEnvUIntPtrAttr(drv.h, api.SQL_ATTR_ODBC_VERSION, api.SQL_OV_ODBC3, 0)
@@ -73,7 +69,7 @@ func (d *Driver) Close() error {
 func init() {
 	err := initDriver()
 	if err != nil {
-		drv.initErr = err
+		panic(err)
 	}
 	sql.Register("odbc", &drv)
 }

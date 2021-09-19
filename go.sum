@@ -1,3 +1,5 @@
+github.com/alexbrainman/odbc v0.0.0-20170616052051-0ee187a7ebce h1:z93NTHR1VHGxhDantB4SfAwBl5BONGvAk0+3lv+wiTQ=
+github.com/alexbrainman/odbc v0.0.0-20170616052051-0ee187a7ebce/go.mod h1:JFyGMphCGBCWdWj1xd43t1yv/llBHSNFBqBo5Sc5zvU=
 github.com/alexbrainman/odbc v0.0.0-20210605012845-39f8520b0d5f h1:qJp6jWdG+PBNCDtIwRpspahMaZ3hlfde/25ExBORKso=
 github.com/alexbrainman/odbc v0.0.0-20210605012845-39f8520b0d5f/go.mod h1:c5eyz5amZqTKvY3ipqerFO/74a/8CYmXOahSr40c+Ww=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

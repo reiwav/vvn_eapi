@@ -39,10 +39,10 @@ type Column interface {
 	Value(h api.SQLHSTMT, idx int) (driver.Value, error)
 }
 
-func describeColumn(h api.SQLHSTMT, idx int, namebuf []uint16) (namelen int, sqltype api.SQLSMALLINT, size api.SQLULEN, ret api.SQLRETURN) {
+func describeColumn(h api.SQLHSTMT, idx int, namebuf []byte) (namelen int, sqltype api.SQLSMALLINT, size api.SQLULEN, ret api.SQLRETURN) {
 	var l, decimal, nullable api.SQLSMALLINT
 	ret = api.SQLDescribeCol(h, api.SQLUSMALLINT(idx+1),
-		(*api.SQLWCHAR)(unsafe.Pointer(&namebuf[0])),
+		(*api.SQLCHAR)(unsafe.Pointer(&namebuf[0])),
 		api.SQLSMALLINT(len(namebuf)), &l,
 		&sqltype, &size, &decimal, &nullable)
 	return int(l), sqltype, size, ret
@@ -51,11 +51,11 @@ func describeColumn(h api.SQLHSTMT, idx int, namebuf []uint16) (namelen int, sql
 // TODO(brainman): did not check for MS SQL timestamp
 
 func NewColumn(h api.SQLHSTMT, idx int) (Column, error) {
-	namebuf := make([]uint16, 150)
+	namebuf := make([]byte, 150)
 	namelen, sqltype, size, ret := describeColumn(h, idx, namebuf)
 	if ret == api.SQL_SUCCESS_WITH_INFO && namelen > len(namebuf) {
 		// try again with bigger buffer
-		namebuf = make([]uint16, namelen)
+		namebuf = make([]byte, namelen)
 		namelen, sqltype, size, ret = describeColumn(h, idx, namebuf)
 	}
 	if IsError(ret) {
@@ -66,8 +66,7 @@ func NewColumn(h api.SQLHSTMT, idx int) (Column, error) {
 		return nil, errors.New("Failed to allocate column name buffer")
 	}
 	b := &BaseColumn{
-		name:    api.UTF16ToString(namebuf[:namelen]),
-		SQLType: sqltype,
+		name: string(namebuf[:namelen]),
 	}
 	switch sqltype {
 	case api.SQL_BIT:
@@ -84,27 +83,21 @@ func NewColumn(h api.SQLHSTMT, idx int) (Column, error) {
 	case api.SQL_TYPE_DATE:
 		var v api.SQL_DATE_STRUCT
 		return NewBindableColumn(b, api.SQL_C_DATE, int(unsafe.Sizeof(v))), nil
-	case api.SQL_TYPE_TIME:
-		var v api.SQL_TIME_STRUCT
-		return NewBindableColumn(b, api.SQL_C_TIME, int(unsafe.Sizeof(v))), nil
-	case api.SQL_SS_TIME2:
-		var v api.SQL_SS_TIME2_STRUCT
-		return NewBindableColumn(b, api.SQL_C_BINARY, int(unsafe.Sizeof(v))), nil
 	case api.SQL_GUID:
 		var v api.SQLGUID
 		return NewBindableColumn(b, api.SQL_C_GUID, int(unsafe.Sizeof(v))), nil
 	case api.SQL_CHAR, api.SQL_VARCHAR:
-		return NewVariableWidthColumn(b, api.SQL_C_CHAR, size)
+		return NewVariableWidthColumn(b, api.SQL_C_CHAR, size), nil
 	case api.SQL_WCHAR, api.SQL_WVARCHAR:
-		return NewVariableWidthColumn(b, api.SQL_C_WCHAR, size)
+		return NewVariableWidthColumn(b, api.SQL_C_WCHAR, size), nil
 	case api.SQL_BINARY, api.SQL_VARBINARY:
-		return NewVariableWidthColumn(b, api.SQL_C_BINARY, size)
+		return NewVariableWidthColumn(b, api.SQL_C_BINARY, size), nil
 	case api.SQL_LONGVARCHAR:
-		return NewVariableWidthColumn(b, api.SQL_C_CHAR, 0)
+		return NewVariableWidthColumn(b, api.SQL_C_CHAR, 0), nil
 	case api.SQL_WLONGVARCHAR, api.SQL_SS_XML:
-		return NewVariableWidthColumn(b, api.SQL_C_WCHAR, 0)
+		return NewVariableWidthColumn(b, api.SQL_C_WCHAR, 0), nil
 	case api.SQL_LONGVARBINARY:
-		return NewVariableWidthColumn(b, api.SQL_C_BINARY, 0)
+		return NewVariableWidthColumn(b, api.SQL_C_BINARY, 0), nil
 	default:
 		return nil, fmt.Errorf("unsupported column type %d", sqltype)
 	}
@@ -112,9 +105,8 @@ func NewColumn(h api.SQLHSTMT, idx int) (Column, error) {
 
 // BaseColumn implements common column functionality.
 type BaseColumn struct {
-	name    string
-	SQLType api.SQLSMALLINT
-	CType   api.SQLSMALLINT
+	name  string
+	CType api.SQLSMALLINT
 }
 
 func (c *BaseColumn) Name() string {
@@ -141,7 +133,7 @@ func (c *BaseColumn) Value(buf []byte) (driver.Value, error) {
 		if p == nil {
 			return buf, nil
 		}
-		s := (*[1 << 28]uint16)(p)[: len(buf)/2 : len(buf)/2]
+		s := (*[1 << 28]uint16)(p)[:len(buf)/2]
 		return utf16toutf8(s), nil
 	case api.SQL_C_TYPE_TIMESTAMP:
 		t := (*api.SQL_TIMESTAMP_STRUCT)(p)
@@ -166,19 +158,7 @@ func (c *BaseColumn) Value(buf []byte) (driver.Value, error) {
 		r := time.Date(int(t.Year), time.Month(t.Month), int(t.Day),
 			0, 0, 0, 0, time.Local)
 		return r, nil
-	case api.SQL_C_TIME:
-		t := (*api.SQL_TIME_STRUCT)(p)
-		r := time.Date(1, time.January, 1,
-			int(t.Hour), int(t.Minute), int(t.Second), 0, time.Local)
-		return r, nil
 	case api.SQL_C_BINARY:
-		if c.SQLType == api.SQL_SS_TIME2 {
-			t := (*api.SQL_SS_TIME2_STRUCT)(p)
-			r := time.Date(1, time.January, 1,
-				int(t.Hour), int(t.Minute), int(t.Second), int(t.Fraction),
-				time.Local)
-			return r, nil
-		}
 		return buf, nil
 	}
 	return nil, fmt.Errorf("unsupported column ctype %d", c.CType)
@@ -211,10 +191,10 @@ func NewBindableColumn(b *BaseColumn, ctype api.SQLSMALLINT, bufSize int) *Binda
 	return c
 }
 
-func NewVariableWidthColumn(b *BaseColumn, ctype api.SQLSMALLINT, colWidth api.SQLULEN) (Column, error) {
+func NewVariableWidthColumn(b *BaseColumn, ctype api.SQLSMALLINT, colWidth api.SQLULEN) Column {
 	if colWidth == 0 || colWidth > 1024 {
 		b.CType = ctype
-		return &NonBindableColumn{b}, nil
+		return &NonBindableColumn{b}
 	}
 	l := int(colWidth)
 	switch ctype {
@@ -226,11 +206,11 @@ func NewVariableWidthColumn(b *BaseColumn, ctype api.SQLSMALLINT, colWidth api.S
 	case api.SQL_C_BINARY:
 		// nothing to do
 	default:
-		return nil, fmt.Errorf("do not know how wide column of ctype %d is", ctype)
+		panic(fmt.Errorf("do not know how wide column of ctype %d is", ctype))
 	}
 	c := NewBindableColumn(b, ctype, l)
 	c.IsVariableWidth = true
-	return c, nil
+	return c
 }
 
 func (c *BindableColumn) Bind(h api.SQLHSTMT, idx int) (bool, error) {
@@ -254,7 +234,7 @@ func (c *BindableColumn) Value(h api.SQLHSTMT, idx int) (driver.Value, error) {
 		return nil, nil
 	}
 	if !c.IsVariableWidth && int(c.Len) != c.Size {
-		return nil, fmt.Errorf("wrong column #%d length %d returned, %d expected", idx, c.Len, c.Size)
+		panic(fmt.Errorf("wrong column #%d length %d returned, %d expected", idx, c.Len, c.Size))
 	}
 	return c.BaseColumn.Value(c.Buffer[:c.Len])
 }

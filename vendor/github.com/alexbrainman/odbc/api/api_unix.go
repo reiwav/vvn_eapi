@@ -2,15 +2,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build darwin linux freebsd
+// +build darwin linux
 // +build cgo
 
 package api
 
-// #cgo darwin LDFLAGS: -lodbc
+// #cgo darwin LDFLAGS: -lodbc -L/opt/local/lib
+// #cgo darwin CFLAGS: -I/opt/local/include
 // #cgo linux LDFLAGS: -lodbc
-// #cgo freebsd LDFLAGS: -L /usr/local/lib -lodbc
-// #cgo freebsd CFLAGS: -I/usr/local/include
 // #include <sql.h>
 // #include <sqlext.h>
 // #include <stdint.h>
@@ -85,8 +84,7 @@ const (
 	SQL_UNSIGNED_OFFSET = C.SQL_UNSIGNED_OFFSET
 
 	// TODO(lukemauldin): Not defined in sqlext.h. Using windows value, but it is not supported.
-	SQL_SS_XML   = -152
-	SQL_SS_TIME2 = -154
+	SQL_SS_XML = -152
 
 	SQL_C_CHAR           = C.SQL_C_CHAR
 	SQL_C_LONG           = C.SQL_C_LONG
@@ -135,6 +133,7 @@ type (
 	SQLHSTMT  C.SQLHSTMT
 	SQLHWND   uintptr
 
+	SQLCHAR      C.SQLCHAR
 	SQLWCHAR     C.SQLWCHAR
 	SQLSCHAR     C.SQLSCHAR
 	SQLSMALLINT  C.SQLSMALLINT

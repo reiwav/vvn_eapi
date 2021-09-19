@@ -3,10 +3,9 @@ module eapi
 go 1.17
 
 require (
-	github.com/alexbrainman/odbc v0.0.0-20210605012845-39f8520b0d5f
-	//github.com/alexbrainman/odbc v0.0.0-20170616052051-0ee187a7ebce
+	//github.com/alexbrainman/odbc v0.0.0-20210605012845-39f8520b0d5f
+	github.com/alexbrainman/odbc v0.0.0-20170616052051-0ee187a7ebce
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/gin-contrib/static v0.0.1
 	github.com/gin-gonic/gin v1.7.4
 	github.com/golang/glog v1.0.0
 	github.com/minio/minio-go v6.0.14+incompatible
@@ -16,6 +15,7 @@ require (
 
 require (
 	github.com/gin-contrib/sse v0.1.0 // indirect
+	github.com/gin-contrib/static v0.0.1 // indirect
 	github.com/go-ini/ini v1.63.1 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect

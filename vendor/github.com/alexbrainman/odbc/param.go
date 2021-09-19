@@ -32,7 +32,7 @@ func (p *Parameter) StoreStrLen_or_IndPtr(v api.SQLLEN) *api.SQLLEN {
 
 }
 
-func (p *Parameter) BindValue(h api.SQLHSTMT, idx int, v driver.Value, conn *Conn) error {
+func (p *Parameter) BindValue(h api.SQLHSTMT, idx int, v driver.Value) error {
 	// TODO(brainman): Reuse memory for previously bound values. If memory
 	// is reused, we, probably, do not need to call SQLBindParameter either.
 	var ctype, sqltype, decimal api.SQLSMALLINT
@@ -64,21 +64,15 @@ func (p *Parameter) BindValue(h api.SQLHSTMT, idx int, v driver.Value, conn *Con
 		l *= 2 // every char takes 2 bytes
 		buflen = api.SQLLEN(l)
 		plen = p.StoreStrLen_or_IndPtr(buflen)
-		if !conn.isMSAccessDriver {
-			switch {
-			case size >= 4000:
-				sqltype = api.SQL_WLONGVARCHAR
-			case p.isDescribed:
-				sqltype = p.SQLType
-			case size <= 1:
-				sqltype = api.SQL_WVARCHAR
-			default:
-				sqltype = api.SQL_WCHAR
-			}
-		} else {
-			// MS Acess requires SQL_WLONGVARCHAR for MEMO.
-			// https://docs.microsoft.com/en-us/sql/odbc/microsoft/microsoft-access-data-types
+		switch {
+		case size >= 4000:
 			sqltype = api.SQL_WLONGVARCHAR
+		case p.isDescribed:
+			sqltype = p.SQLType
+		case size <= 1:
+			sqltype = api.SQL_WVARCHAR
+		default:
+			sqltype = api.SQL_WCHAR
 		}
 	case int64:
 		if -0x80000000 < d && d < 0x7fffffff {
@@ -157,7 +151,7 @@ func (p *Parameter) BindValue(h api.SQLHSTMT, idx int, v driver.Value, conn *Con
 			sqltype = api.SQL_BINARY
 		}
 	default:
-		return fmt.Errorf("unsupported type %T", v)
+		panic(fmt.Errorf("unsupported type %T", v))
 	}
 	ret := api.SQLBindParameter(h, api.SQLUSMALLINT(idx+1),
 		api.SQL_PARAM_INPUT, ctype, sqltype, size, decimal,
