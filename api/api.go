@@ -232,12 +232,14 @@ func handleRequests(ctx *gin.Context) {
 		var _, end = ParseTimeQuery(createdAtLt)
 		where += " AND created_at between " + start + " AND " + end
 	}
-	var skip = int(page * size)
-	if skip <= 0 {
-		skip = 0
+	if page < 0 {
+		page = 0
 	}
-	var res, err = request.SelectCustomMany(where, oderBy, skip, int(size))
-	fmt.Println("======== REQUESTS", err)
+	var skip = int(page * size)
+	var res, err = request.SelectCustomSkipLimit(where, oderBy, skip, int((page+1)*size))
+	rest.AssertNil(err)
+	var total, _ = request.Count(nil)
+	ctx.Writer.Header().Set("X-Total-Count", fmt.Sprintf("%v", total))
 	js.SendString(ctx, res)
 }
 
@@ -246,8 +248,13 @@ func handleImages(ctx *gin.Context) {
 	var page = web.MustGetInt64("page", q)
 	var size = web.MustGetInt64("size", q)
 	var sorts = strings.Split(ctx.Query("sort"), ",")
+
+	if page < 0 {
+		page = 0
+	}
+	var skip = int(page * size)
 	var oderBy = sorts[0] + " " + sorts[1]
-	var res, _ = file.SelectMany(nil, oderBy, int(page*size), int(size))
+	var res, _ = file.SelectSkipLimit(nil, oderBy, skip, int((page+1)*size))
 	if len(res) > 0 {
 		var usr = mid.GetMyUser(ctx)
 		var storage, err1 = getMiniStorage(usr.MinioEndpoint.String(), string(usr.MinioKey), string(usr.MinioSecret), string(usr.MinioBucket), bool(usr.MinioUseSSL))
@@ -257,7 +264,6 @@ func handleImages(ctx *gin.Context) {
 		for i, val := range res {
 			if val.FilePath != "" {
 				url, err := storage.GetURL(ctx, string(val.FilePath), time.Duration(30)*time.Second)
-				fmt.Println("==============", url)
 				if err != nil {
 					rest.AssertNil(fmt.Errorf("Gen url %v \n", err))
 				}
@@ -267,6 +273,8 @@ func handleImages(ctx *gin.Context) {
 		}
 		res = fileNews
 	}
+	var total, _ = request.Count(nil)
+	ctx.Writer.Header().Set("X-Total-Count", fmt.Sprintf("%v", total))
 	js.SendString(ctx, res)
 }
 

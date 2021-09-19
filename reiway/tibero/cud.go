@@ -170,6 +170,31 @@ func (t *Table) scanRows(v interface{}, r *sql.Rows) error {
 	return nil
 }
 
+func (t *Table) SelectSkipLimit(where map[string]string, model IModel, orderBy string, skip int, limit int, v interface{}) error {
+	var qDate = " deleted_at is null "
+	for key, val := range where {
+		qDate += " AND " + key + "=" + val
+	}
+	var q = fmt.Sprintf(SelectRow, t.TableName, qDate)
+	if orderBy != "" {
+		q += " ORDER BY " + orderBy
+	}
+	var cells, err = t.GetCells(model)
+	if err != nil {
+		cells = "*"
+	}
+
+	if limit > 0 {
+		q = "SELECT " + cells + " FROM (SELECT a.*, rownum rowcell FROM ( " + q + " ) a WHERE rownum < " + strconv.Itoa(limit) + ") WHERE rowcell >= " + strconv.Itoa(skip) + ";"
+	}
+
+	rows, err := t.DB.Query(q)
+	if err != nil {
+		return err
+	}
+	return t.scanRows(v, rows)
+}
+
 func (t *Table) SelectMany(where map[string]string, orderBy string, skip int, limit int, v interface{}) error {
 	var qDate = " deleted_at is null "
 	for key, val := range where {
@@ -205,6 +230,47 @@ func (t *Table) SelectCustomMany(where string, orderBy string, skip int, limit i
 		return err
 	}
 	return t.scanRows(v, rows)
+}
+
+func (t *Table) SelectCustomSkipLimit(where string, model IModel, orderBy string, skip int, limit int, v interface{}) error {
+	var q = fmt.Sprintf(SelectRow, t.TableName, where)
+	if orderBy != "" {
+		q += " ORDER BY " + strings.ToUpper(orderBy)
+	}
+	var cells, err = t.GetCells(model)
+	if err != nil {
+		cells = "*"
+	}
+
+	if limit > 0 {
+		q = "SELECT " + cells + " FROM (SELECT a.*, rownum rowcell FROM ( " + q + " ) a WHERE rownum < " + strconv.Itoa(limit) + ") WHERE rowcell >= " + strconv.Itoa(skip) + ";"
+	}
+
+	rows, err := t.DB.Query(q)
+	if err != nil {
+		return err
+	}
+	return t.scanRows(v, rows)
+}
+
+func (t *Table) Count(where map[string]string) (int64, error) {
+	var q = fmt.Sprintf(SelectCount, t.TableName)
+	if len(where) > 0 {
+		var w string
+		for i, val := range where {
+			if w == "" {
+				w += i + "=" + val
+			} else {
+				w += " AND " + val + "=" + val
+			}
+		}
+		q = fmt.Sprintf(SelectCountWhere, t.TableName, w)
+	}
+
+	row := t.DB.QueryRow(q)
+	var total int64
+	err := row.Scan(&total)
+	return total, err
 }
 
 func (t *Table) UnsafeSelectMany(cells, where, orderBy string, skip int, limit int, v interface{}) error {

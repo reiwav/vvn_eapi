@@ -20,9 +20,23 @@ func SelectMany(where map[string]string, order string, skip, limit int) ([]Reque
 	return res, tableRequest.SelectMany(where, order, skip, limit, &res)
 }
 
+func SelectSkipLimit(where map[string]string, order string, skip, limit int) ([]Request, error) {
+	var res = []Request{}
+	return res, tableRequest.SelectSkipLimit(where, &Request{}, order, skip, limit, &res)
+}
+
+func SelectCustomSkipLimit(where string, order string, skip, limit int) ([]Request, error) {
+	var res = []Request{}
+	return res, tableRequest.SelectCustomSkipLimit(where, &Request{}, order, skip, limit, &res)
+}
+
 func SelectCustomMany(where string, order string, skip, limit int) ([]Request, error) {
 	var res = []Request{}
 	return res, tableRequest.SelectCustomMany(where, order, skip, limit, &res)
+}
+
+func Count(where map[string]string) (int64, error) {
+	return tableRequest.Count(where)
 }
 
 func SelectDistinct(where map[string]string, cols []string, res interface{}) error {

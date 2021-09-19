@@ -18,6 +18,10 @@ func SelectMany(where map[string]string, order string, skip, limit int) ([]File,
 	var res = []File{}
 	return res, tableFile.SelectMany(where, order, skip, limit, &res)
 }
+func SelectSkipLimit(where map[string]string, order string, skip, limit int) ([]File, error) {
+	var res = []File{}
+	return res, tableFile.SelectSkipLimit(where, &File{}, order, skip, limit, &res)
+}
 
 func UnsafeSelectMany(cells, where, order string, skip, limit int) ([]File, error) {
 	var res = []File{}
@@ -31,6 +35,10 @@ func SelecOne(where map[string]string, order string) (*File, error) {
 		return nil, err
 	}
 	return res, res.CheckID()
+}
+
+func Count(where map[string]string) (int64, error) {
+	return tableFile.Count(where)
 }
 
 func (r *File) Insert() error {

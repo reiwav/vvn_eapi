@@ -12,18 +12,20 @@ const (
 		"INTO   :new.id " +
 		"FROM   dual; " +
 		"END;"
-	CreateTable    = "CREATE TABLE %v(%v);"
-	AlterTable     = "ALTER TABLE %v(%v);"
-	InsertRow      = "INSERT INTO %v(%v) VALUES (%v) RETURNING ID INTO :C;"
-	UpdateRow      = "UPDATE %v SET %v WHERE %v=%v;"
-	DeleteRow      = "DELETE FROM %v WHERE %v=%v"
-	SelectRow      = "SELECT * FROM %v WHERE %v"
-	SelectCols     = "SELECT %v FROM %v WHERE %v"
-	UnsafeSelect   = "SELECT %v FROM %v WHERE %v"
-	BeginInsertAll = "INSERT ALL "
-	BodyInsertAll  = "INTO %v(%v) VALUES (%v) "
-	EndInsertAll   = "SELECT * FROM DUAL;"
-	SelectDistinct = "SELECT DISTINCT %v  FROM %v WHERE %v;"
+	CreateTable      = "CREATE TABLE %v(%v);"
+	AlterTable       = "ALTER TABLE %v(%v);"
+	InsertRow        = "INSERT INTO %v(%v) VALUES (%v) RETURNING ID INTO :C;"
+	UpdateRow        = "UPDATE %v SET %v WHERE %v=%v;"
+	DeleteRow        = "DELETE FROM %v WHERE %v=%v"
+	SelectRow        = "SELECT * FROM %v WHERE %v"
+	SelectCount      = "SELECT COUNT(*) FROM %v "
+	SelectCountWhere = "SELECT COUNT(*) FROM %v WHERE %v"
+	SelectCols       = "SELECT %v FROM %v WHERE %v"
+	UnsafeSelect     = "SELECT %v FROM %v WHERE %v"
+	BeginInsertAll   = "INSERT ALL "
+	BodyInsertAll    = "INTO %v(%v) VALUES (%v) "
+	EndInsertAll     = "SELECT * FROM DUAL;"
+	SelectDistinct   = "SELECT DISTINCT %v  FROM %v WHERE %v;"
 )
 
 const (

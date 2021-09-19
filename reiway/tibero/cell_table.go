@@ -45,3 +45,19 @@ func getDataTypeCell(field Field) (string, error) {
 	}
 	return field.Name + " " + strings.ToUpper(field.DataType) + leng, nil
 }
+
+func (t *Table) GetCells(model IModel) (string, error) {
+	var fields, err = GetValueFields(KEY_TAG, model)
+	if err != nil {
+		return "", err
+	}
+	var cells string
+	for _, col := range fields {
+		if cells == "" {
+			cells = col.Name
+		} else {
+			cells += "," + col.Name
+		}
+	}
+	return cells, nil
+}

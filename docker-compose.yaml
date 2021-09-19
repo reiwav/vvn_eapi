@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+    appcms:
+      build:
+        dockerfile: Dockerfile
+        context: .
+      environment: 
+        - "SERVER_API_URL=localhost:3379"
+      volumes:
+        - "./config.json:/go/src/app/eapi/config.json"
+      ports:
+        - "3379:3000"
+     
