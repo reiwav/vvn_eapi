@@ -1,6 +1,8 @@
 package user
 
 import (
+	"fmt"
+
 	"github.com/reiwav/x/rest"
 )
 
@@ -13,6 +15,7 @@ func GetByLogin(username, password string) (usr *User, err error) {
 		return nil, rest.BadRequest("account is not active")
 	}
 	var pwdEncryt = decrypt(usr.Password.String())
+	fmt.Println(pwdEncryt)
 	if pwdEncryt != password {
 		return nil, rest.BadRequest("error.validation")
 	}

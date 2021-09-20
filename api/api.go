@@ -168,6 +168,7 @@ func handleAccount(ctx *gin.Context) {
 func handlePostAccount(ctx *gin.Context) {
 	var u *user.User
 	rest.AssertNil(ctx.BindJSON(&u))
+	u.Password = ""
 	err := u.Update(false)
 	if err != nil {
 		rest.AssertNil(rest.BadRequest(err.Error()))
