@@ -37,10 +37,10 @@ func GetTable() *tibero.Table {
 
 type User struct {
 	tibero.BaseModel `rei:"inline"`
-	Login            tibero.String `json:"login" rei:"login,300"`
-	FirstName        tibero.String `json:"firstName" rei:"first_name,300"`
-	LastName         tibero.String `json:"lastName" rei:"last_name,300"`
-	Email            tibero.String `rei:"email" json:"email,300" `
+	Login            tibero.String `rei:"login,300" json:"login" `
+	FirstName        tibero.String `rei:"first_name,300" json:"firstName" `
+	LastName         tibero.String `rei:"last_name,300" json:"lastName" `
+	Email            tibero.String `rei:"email,300" json:"email"`
 	ImageURL         tibero.String `rei:"image_url" json:"imageUrl"`
 	Activated        tibero.Bool   `rei:"activated" json:"activated"`
 	LangKey          tibero.String `rei:"lang_key" json:"langKey"`
@@ -55,7 +55,7 @@ type User struct {
 	MinioUseSSL   tibero.Bool   `rei:"minio_use_ssl" json:"minioUseSSL"`
 	MinioBucket   tibero.String `rei:"minio_bucket" json:"minioBucket"`
 	MinioPrefix   tibero.String `rei:"minio_prefix" json:"minioPrefix"`
-	Password      tibero.String `rei:"password" json:"password"`
+	Password      tibero.String `rei:"password,omitempty" json:"password"`
 }
 
 const Key = "f016f1185acaf153fab0bc4449803b5c"
@@ -214,5 +214,6 @@ func GetByID(uID string) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
+	u.Password = ""
 	return u, u.CheckID()
 }

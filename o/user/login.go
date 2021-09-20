@@ -1,23 +1,18 @@
 package user
 
 import (
-	"fmt"
-
 	"github.com/reiwav/x/rest"
 )
 
 func GetByLogin(username, password string) (usr *User, err error) {
 	usr, err = GetByUserPass(username, password)
 	if err != nil || usr == nil {
-		fmt.Println("=== VAO LOI2: ", err.Error())
 		return nil, rest.BadRequest("error.validation")
 	}
 	if !usr.Activated {
 		return nil, rest.BadRequest("account is not active")
 	}
 	var pwdEncryt = decrypt(usr.Password.String())
-	fmt.Println(pwdEncryt)
-	fmt.Println(usr.Password)
 	if pwdEncryt != password {
 		return nil, rest.BadRequest("error.validation")
 	}
