@@ -214,6 +214,5 @@ func GetByID(uID string) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	u.Password = ""
 	return u, u.CheckID()
 }

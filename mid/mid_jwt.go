@@ -111,11 +111,11 @@ func errorChecking(tokenParam, tyRole string) (*MyCustomClaims, interface{}, err
 		if claim, ok := token.Claims.(*MyCustomClaims); ok {
 
 			var dataUser, err = user.GetByID(claim.UserID)
-			fmt.Println("USER : ", dataUser)
 			if err != nil {
 				return nil, nil, rest.Unauthorized("user " + err.Error())
 			}
-
+			dataUser.Password = ""
+			fmt.Println("USER : ", dataUser)
 			var timeNow = time.Now().Unix()
 			if timeNow >= claim.ExpiresAt {
 				return nil, nil, rest.Unauthorized("token expried")
