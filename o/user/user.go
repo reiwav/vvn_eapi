@@ -201,6 +201,15 @@ func GetAll() ([]User, error) {
 	return urs, err
 }
 
+func SelectExistRow() bool {
+	var urs = &User{}
+	err := tableUser.SelectOne(nil, "", 0, 1, &urs)
+	if err != nil || urs.CheckID() != nil {
+		return false
+	}
+	return true
+}
+
 func (u *User) MarkDelete() error {
 	err := tableUser.DeleteByID(u)
 	return err
