@@ -7,6 +7,7 @@ type ConfigSystem struct {
 	DB          tibero.ConfigDB `json:"db"`
 	Port        string          `json:"port"`
 	FolderAdmin string          `json:"folder_admin"`
+	TimeExpires int64           `json:"time_expires"`
 }
 
 const (

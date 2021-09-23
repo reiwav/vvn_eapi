@@ -3,6 +3,7 @@ package api
 import (
 	"eapi/api/admin"
 	"eapi/api/shared"
+	"eapi/common"
 	"eapi/dao"
 	"eapi/dao/settable"
 	"eapi/mid"
@@ -83,7 +84,7 @@ func handleGetRequest(ctx *gin.Context) {
 	for i, val := range files {
 		url := "N/A"
 		if val.FilePath != "" {
-			url, err = storage.GetURL(ctx, string(val.FilePath), time.Duration(30)*time.Second)
+			url, err = storage.GetURL(ctx, string(val.FilePath), time.Duration(common.ConfigSystemCache.TimeExpires)*time.Second)
 			fmt.Println("==============", url)
 			if err != nil {
 				rest.AssertNil(fmt.Errorf("Gen url %v \n", err))
@@ -109,7 +110,7 @@ func handleGetImage(ctx *gin.Context) {
 		rest.AssertNil(err1)
 		url := "N/A"
 		if files.FilePath != "" {
-			url, err = storage.GetURL(ctx, string(files.FilePath), time.Duration(30)*time.Second)
+			url, err = storage.GetURL(ctx, string(files.FilePath), time.Duration(common.ConfigSystemCache.TimeExpires)*time.Second)
 			fmt.Println("==============", url)
 			if err != nil {
 				rest.AssertNil(fmt.Errorf("Gen url %v \n", err))
@@ -135,7 +136,7 @@ func HandleGetImageView(ctx *gin.Context) {
 		rest.AssertNil(err1)
 		url := "N/A"
 		if files.FilePath != "" {
-			url, err = storage.GetURL(ctx, string(files.FilePath), time.Duration(30)*time.Second)
+			url, err = storage.GetURL(ctx, string(files.FilePath), time.Duration(common.ConfigSystemCache.TimeExpires)*time.Second)
 			fmt.Println("==============", url)
 			if err != nil {
 				rest.AssertNil(fmt.Errorf("Gen url %v \n", err))
@@ -264,7 +265,7 @@ func handleImages(ctx *gin.Context) {
 		var fileNews = make([]file.File, len(res))
 		for i, val := range res {
 			if val.FilePath != "" {
-				url, err := storage.GetURL(ctx, string(val.FilePath), time.Duration(30)*time.Second)
+				url, err := storage.GetURL(ctx, string(val.FilePath), time.Duration(common.ConfigSystemCache.TimeExpires)*time.Second)
 				if err != nil {
 					rest.AssertNil(fmt.Errorf("Gen url %v \n", err))
 				}
