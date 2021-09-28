@@ -16,7 +16,8 @@ func NewTable() error {
 
 func SelectMany(where map[string]string, order string, skip, limit int) ([]File, error) {
 	var res = []File{}
-	return res, tableFile.SelectMany(where, order, skip, limit, &res)
+
+	return res, tableFile.SelectMany(&File{}, where, order, skip, limit, &res)
 }
 func SelectSkipLimit(where map[string]string, order string, skip, limit int) ([]File, error) {
 	var res = []File{}
@@ -30,7 +31,7 @@ func UnsafeSelectMany(cells, where, order string, skip, limit int) ([]File, erro
 
 func SelecOne(where map[string]string, order string) (*File, error) {
 	var res = &File{}
-	err := tableFile.SelectOne(where, order, 0, 0, &res)
+	err := tableFile.SelectOne(&File{}, where, order, 0, 0, &res)
 	if err != nil {
 		return nil, err
 	}

@@ -128,7 +128,7 @@ func GetByUserPass(usr, pwd string) (*User, error) {
 	var where = make(map[string]string)
 	where["login"] = "'" + usr + "'"
 	//where["password"] = "'" + Encrypt(pwd) + "'"
-	return &u, tableUser.SelectOne(where, "", 0, 0, &u)
+	return &u, tableUser.SelectOne(&User{}, where, "", 0, 0, &u)
 }
 
 func SelectUser(usr, pwd string) (*User, error) {
@@ -141,7 +141,7 @@ func SelectUser(usr, pwd string) (*User, error) {
 		"email", "image_url", "activated", "lang_key", "created_by", "lastModified_by",
 		"minio_endpoint", "minio_endpoint", "minio_key", "minio_secret",
 		"minio_use_ssl", "minio_bucket", "minio_prefix"}
-	var rows, err = tableUser.SelectRows(where, cols, "", 0, 0)
+	var rows, err = tableUser.SelectRows(&User{}, where, cols, "", 0, 0)
 	fmt.Println(err)
 	if err != nil {
 		return nil, err
@@ -197,13 +197,13 @@ func (u *User) Update(isUpPass bool) error {
 
 func GetAll() ([]User, error) {
 	var urs = []User{}
-	err := tableUser.SelectMany(nil, "", 0, 0, &urs)
+	err := tableUser.SelectMany(&User{}, nil, "", 0, 0, &urs)
 	return urs, err
 }
 
 func SelectExistRow() bool {
 	var urs = &User{}
-	err := tableUser.SelectOne(nil, "", 0, 1, &urs)
+	err := tableUser.SelectOne(&User{}, nil, "", 0, 1, &urs)
 	if err != nil || urs.CheckID() != nil {
 		return false
 	}
@@ -219,7 +219,7 @@ func GetByID(uID string) (*User, error) {
 	var u = &User{}
 	where := make(map[string]string)
 	where["id"] = uID
-	var err = tableUser.SelectOne(where, "", 0, 0, &u)
+	var err = tableUser.SelectOne(&User{}, where, "", 0, 0, &u)
 	if err != nil {
 		return nil, err
 	}

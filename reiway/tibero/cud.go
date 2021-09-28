@@ -69,12 +69,16 @@ func (t *Table) DeleteByID(model IModel) error {
 	return err
 }
 
-func (t *Table) SelectOne(where map[string]string, orderBy string, skip int, limit int, v interface{}) error {
+func (t *Table) SelectOne(model IModel, where map[string]string, orderBy string, skip int, limit int, v interface{}) error {
 	var qDate = " deleted_at is null "
 	for key, val := range where {
 		qDate += " AND " + key + "=" + val
 	}
-	var q = fmt.Sprintf(SelectRow, t.TableName, qDate)
+	var cells, err = t.GetCells(model)
+	if err != nil {
+		cells = "*"
+	}
+	var q = fmt.Sprintf(SelectRow, cells, t.TableName, qDate)
 	if orderBy != "" {
 		q += " ORDER BY " + orderBy
 	}
@@ -92,14 +96,19 @@ func (t *Table) SelectOne(where map[string]string, orderBy string, skip int, lim
 	return t.scanRowOne(v, row)
 }
 
-func (t *Table) SelectRows(where map[string]string, cols []string, orderBy string, skip int, limit int) (*sql.Rows, error) {
+func (t *Table) SelectRows(model IModel, where map[string]string, cols []string, orderBy string, skip int, limit int) (*sql.Rows, error) {
 	var qDate = " deleted_at is null "
 	for key, val := range where {
 		qDate += " AND " + key + "=" + val
 	}
+
 	var q string
 	if len(cols) == 0 {
-		q = fmt.Sprintf(SelectRow, t.TableName, qDate)
+		var cells, err = t.GetCells(model)
+		if err != nil {
+			cells = "*"
+		}
+		q = fmt.Sprintf(SelectRow, cells, t.TableName, qDate)
 	} else {
 		var colStr string
 		for i, val := range cols {
@@ -175,13 +184,14 @@ func (t *Table) SelectSkipLimit(where map[string]string, model IModel, orderBy s
 	for key, val := range where {
 		qDate += " AND " + key + "=" + val
 	}
-	var q = fmt.Sprintf(SelectRow, t.TableName, qDate)
-	if orderBy != "" {
-		q += " ORDER BY " + orderBy
-	}
 	var cells, err = t.GetCells(model)
 	if err != nil {
 		cells = "*"
+	}
+
+	var q = fmt.Sprintf(SelectRow, cells, t.TableName, qDate)
+	if orderBy != "" {
+		q += " ORDER BY " + orderBy
 	}
 
 	if limit > 0 {
@@ -195,12 +205,17 @@ func (t *Table) SelectSkipLimit(where map[string]string, model IModel, orderBy s
 	return t.scanRows(v, rows)
 }
 
-func (t *Table) SelectMany(where map[string]string, orderBy string, skip int, limit int, v interface{}) error {
+func (t *Table) SelectMany(model IModel, where map[string]string, orderBy string, skip int, limit int, v interface{}) error {
 	var qDate = " deleted_at is null "
 	for key, val := range where {
 		qDate += " AND " + key + "=" + val
 	}
-	var q = fmt.Sprintf(SelectRow, t.TableName, qDate)
+	var cells, err = t.GetCells(model)
+	if err != nil {
+		cells = "*"
+	}
+
+	var q = fmt.Sprintf(SelectRow, cells, t.TableName, qDate)
 	if orderBy != "" {
 		q += " ORDER BY " + orderBy
 	}
@@ -215,8 +230,13 @@ func (t *Table) SelectMany(where map[string]string, orderBy string, skip int, li
 	return t.scanRows(v, rows)
 }
 
-func (t *Table) SelectCustomMany(where string, orderBy string, skip int, limit int, v interface{}) error {
-	var q = fmt.Sprintf(SelectRow, t.TableName, where)
+func (t *Table) SelectCustomMany(model IModel, where string, orderBy string, skip int, limit int, v interface{}) error {
+	var cells, err = t.GetCells(model)
+	if err != nil {
+		cells = "*"
+	}
+
+	var q = fmt.Sprintf(SelectRow, cells, t.TableName, where)
 	if orderBy != "" {
 		q += " ORDER BY " + strings.ToUpper(orderBy)
 	}
@@ -233,19 +253,19 @@ func (t *Table) SelectCustomMany(where string, orderBy string, skip int, limit i
 }
 
 func (t *Table) SelectCustomSkipLimit(where string, model IModel, orderBy string, skip int, limit int, v interface{}) error {
-	var q = fmt.Sprintf(SelectRow, t.TableName, where)
-	if orderBy != "" {
-		q += " ORDER BY " + strings.ToUpper(orderBy)
-	}
 	var cells, err = t.GetCells(model)
 	if err != nil {
 		cells = "*"
+	}
+	var q = fmt.Sprintf(SelectRow, cells, t.TableName, where)
+	if orderBy != "" {
+		q += " ORDER BY " + strings.ToUpper(orderBy)
 	}
 
 	if limit > 0 {
 		q = "SELECT " + cells + " FROM (SELECT a.*, rownum rowcell FROM ( " + q + " ) a WHERE rownum < " + strconv.Itoa(limit) + ") WHERE rowcell >= " + strconv.Itoa(skip) + ";"
 	}
-
+	fmt.Println(q)
 	rows, err := t.DB.Query(q)
 	if err != nil {
 		return err

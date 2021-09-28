@@ -17,7 +17,7 @@ func NewTable() error {
 
 func SelectMany(where map[string]string, order string, skip, limit int) ([]Request, error) {
 	var res = []Request{}
-	return res, tableRequest.SelectMany(where, order, skip, limit, &res)
+	return res, tableRequest.SelectMany(&Request{}, where, order, skip, limit, &res)
 }
 
 func SelectSkipLimit(where map[string]string, order string, skip, limit int) ([]Request, error) {
@@ -32,7 +32,7 @@ func SelectCustomSkipLimit(where string, order string, skip, limit int) ([]Reque
 
 func SelectCustomMany(where string, order string, skip, limit int) ([]Request, error) {
 	var res = []Request{}
-	return res, tableRequest.SelectCustomMany(where, order, skip, limit, &res)
+	return res, tableRequest.SelectCustomMany(&Request{}, where, order, skip, limit, &res)
 }
 
 func Count(where map[string]string) (int64, error) {
@@ -45,7 +45,7 @@ func SelectDistinct(where map[string]string, cols []string, res interface{}) err
 
 func SelecOne(where map[string]string, order string) (*Request, error) {
 	var res = &Request{}
-	var err = tableRequest.SelectOne(where, order, 0, 1, &res)
+	var err = tableRequest.SelectOne(&Request{}, where, order, 0, 1, &res)
 	if err != nil {
 		return nil, err
 	}

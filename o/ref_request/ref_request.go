@@ -18,12 +18,12 @@ func NewTable() error {
 
 func SelectMany(where map[string]string, order string, skip, limit int) ([]RefRequest, error) {
 	var res = []RefRequest{}
-	return res, tableRefRequest.SelectMany(where, order, skip, limit, &res)
+	return res, tableRefRequest.SelectMany(&RefRequest{}, where, order, skip, limit, &res)
 }
 
 func SelecOne(where map[string]string, order string) (*RefRequest, error) {
 	var res = &RefRequest{}
-	err := tableRefRequest.SelectOne(where, order, 0, 1, &res)
+	err := tableRefRequest.SelectOne(&RefRequest{}, where, order, 0, 1, &res)
 	if err != nil {
 		return nil, err
 	}

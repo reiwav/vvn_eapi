@@ -17,7 +17,7 @@ const (
 	InsertRow        = "INSERT INTO %v(%v) VALUES (%v) RETURNING ID INTO :C;"
 	UpdateRow        = "UPDATE %v SET %v WHERE %v=%v;"
 	DeleteRow        = "DELETE FROM %v WHERE %v=%v"
-	SelectRow        = "SELECT * FROM %v WHERE %v"
+	SelectRow        = "SELECT %v FROM %v WHERE %v"
 	SelectCount      = "SELECT COUNT(*) FROM %v "
 	SelectCountWhere = "SELECT COUNT(*) FROM %v WHERE %v"
 	SelectCols       = "SELECT %v FROM %v WHERE %v"

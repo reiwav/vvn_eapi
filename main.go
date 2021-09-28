@@ -25,7 +25,7 @@ import (
 func main() {
 	router := gin.New()
 
-	router.Use(common.StaticServe("./admin"))
+	router.Use(common.StaticServe(common.ConfigSystemCache.FolderAdmin))
 	router.Use(cors.AllowAll(), gin.Logger(), mid.Recovery())
 	//api
 	rootAPI := router.Group("/api")

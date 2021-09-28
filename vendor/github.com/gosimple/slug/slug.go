@@ -32,8 +32,8 @@ var (
 	// Default is true.
 	Lowercase = true
 
-	regexpNonAuthorizedChars = regexp.MustCompile("[^a-zA-Z0-9-_?!/-|:><=,.[]{}]@$%")
-	//regexpMultipleDashes     = regexp.MustCompile("-+")
+	regexpNonAuthorizedChars = regexp.MustCompile("[^a-zA-Z0-9-_]")
+	regexpMultipleDashes     = regexp.MustCompile("-+")
 )
 
 //=============================================================================
@@ -97,9 +97,9 @@ func MakeLang(s string, lang string) (slug string) {
 	}
 
 	// Process all remaining symbols
-	slug = regexpNonAuthorizedChars.ReplaceAllString(slug, " ")
-	//slug = regexpMultipleDashes.ReplaceAllString(slug, " ")
-	slug = strings.Trim(slug, " _")
+	slug = regexpNonAuthorizedChars.ReplaceAllString(slug, "-")
+	slug = regexpMultipleDashes.ReplaceAllString(slug, "-")
+	slug = strings.Trim(slug, "-_")
 
 	if MaxLength > 0 {
 		slug = smartTruncate(slug)
