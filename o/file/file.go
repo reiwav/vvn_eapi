@@ -1,13 +1,12 @@
 package file
 
 import (
-	"eapi/dao"
 	"eapi/reiway/tibero"
 )
 
 var tableFile = tibero.Table{
 	TableName: "files",
-	DB:        dao.Database(),
+	DB:        tibero.GetDB(),
 }
 
 func NewTable() error {

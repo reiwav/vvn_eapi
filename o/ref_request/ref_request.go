@@ -1,7 +1,6 @@
 package ref_request
 
 import (
-	"eapi/dao"
 	"eapi/reiway/tibero"
 
 	"eapi/o/request"
@@ -9,7 +8,7 @@ import (
 
 var tableRefRequest = tibero.Table{
 	TableName: "ref_requests",
-	DB:        dao.Database(),
+	DB:        tibero.GetDB(),
 }
 
 func NewTable() error {

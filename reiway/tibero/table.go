@@ -12,8 +12,12 @@ type Table struct {
 	DB        *sql.DB
 }
 
-func (tb *Table) NewTable(model IModel) error {
+func (tb *Table) GetDB() {
+	tb.DB = GetDB()
+}
 
+func (tb *Table) NewTable(model IModel) error {
+	tb.GetDB()
 	var res interface{}
 	var selectRow = strings.ReplaceAll(SelectRowOne, "@p", tb.TableName)
 	err := tb.DB.QueryRow(selectRow).Scan(&res)
@@ -45,7 +49,7 @@ func (tb *Table) NewTable(model IModel) error {
 func NewTable(tbName string, db *sql.DB, model IModel) error {
 	var t = Table{
 		TableName: tbName,
-		DB:        db,
+		DB:        GetDB(),
 	}
 	var res interface{}
 	var selectRow = strings.ReplaceAll(SelectRowOne, "@p", tbName)
@@ -77,6 +81,7 @@ func NewTable(tbName string, db *sql.DB, model IModel) error {
 type LstModel []IModel
 
 func (t *Table) InsertAll(models LstModel) error {
+	t.GetDB()
 	var q = BeginInsertAll
 	for _, model := range models {
 		model.BeforeCreate()
@@ -92,6 +97,7 @@ func (t *Table) InsertAll(models LstModel) error {
 }
 
 func (t *Table) CreateSequanceGenID() error {
+	t.GetDB()
 	query := strings.ReplaceAll(SequenceGenID, "@p", t.TableName)
 	fmt.Println("===== ", query)
 	res, err := t.DB.Exec(query)
@@ -106,6 +112,7 @@ func (t *Table) CreateSequanceGenID() error {
 }
 
 func (t *Table) CreateTriggerGenID() error {
+	t.GetDB()
 	var query = strings.ReplaceAll(TriggerGenID, "@p", t.TableName)
 	fmt.Println("===== ", query)
 	res, err := t.DB.Exec(query)

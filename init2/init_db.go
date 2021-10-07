@@ -2,7 +2,6 @@ package init2
 
 import (
 	"eapi/common"
-	"eapi/dao"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -42,11 +41,11 @@ func initConfig() {
 
 func initDB() {
 	var conf = common.ConfigSystemCache.DB
-	var db, err = conf.Connect()
+	_, err := conf.Connect(true)
 	if err != nil {
+		fmt.Println("ERROR CONNECT DB:", err)
 		panic(err)
 	}
-	dao.SetDatabase(db)
 }
 
 func initLog() {

@@ -11,6 +11,7 @@ import (
 )
 
 func (t *Table) InsertOne(model IModel) error {
+	t.GetDB()
 	model.BeforeCreate()
 	var cells, values, err = cellValueInserts(model)
 	if err != nil {
@@ -25,6 +26,7 @@ func (t *Table) InsertOne(model IModel) error {
 }
 
 func (t *Table) UpdateByID(model IModel) error {
+	t.GetDB()
 	model.BeforeUpdate()
 	var cells, where, err = cellValueUpdate(model, "id")
 	if err != nil {
@@ -37,6 +39,7 @@ func (t *Table) UpdateByID(model IModel) error {
 }
 
 func (t *Table) UnsafeUpdateByID(ID string, cells map[string]string) error {
+	t.GetDB()
 	var q string
 	for key, val := range cells {
 		if q == "" {
@@ -51,6 +54,7 @@ func (t *Table) UnsafeUpdateByID(ID string, cells map[string]string) error {
 }
 
 func (t *Table) UnsafeDeleteByID(ID string) error {
+	t.GetDB()
 	var q = "deleted_at=" + ConvertTimeToDate(time.Now())
 	var query = fmt.Sprintf(UpdateRow, t.TableName, q, "id", ID)
 	_, err := t.DB.Exec(query)
@@ -58,6 +62,7 @@ func (t *Table) UnsafeDeleteByID(ID string) error {
 }
 
 func (t *Table) DeleteByID(model IModel) error {
+	t.GetDB()
 	model.BeforeDelete()
 	var cells, where, err = cellValueDelete(model, "id")
 	if err != nil {
@@ -70,6 +75,7 @@ func (t *Table) DeleteByID(model IModel) error {
 }
 
 func (t *Table) SelectOne(model IModel, where map[string]string, orderBy string, skip int, limit int, v interface{}) error {
+	t.GetDB()
 	var qDate = " deleted_at is null "
 	for key, val := range where {
 		qDate += " AND " + key + "=" + val
@@ -97,6 +103,7 @@ func (t *Table) SelectOne(model IModel, where map[string]string, orderBy string,
 }
 
 func (t *Table) SelectRows(model IModel, where map[string]string, cols []string, orderBy string, skip int, limit int) (*sql.Rows, error) {
+	t.DB = GetDB()
 	var qDate = " deleted_at is null "
 	for key, val := range where {
 		qDate += " AND " + key + "=" + val
@@ -146,6 +153,7 @@ func (t *Table) scanRowOne(v interface{}, row *sql.Rows) error {
 }
 
 func (t *Table) UnsafeSelectOne(query string, v interface{}) error {
+	t.GetDB()
 	row, err := t.DB.Query(query)
 	if err != nil {
 		return err
@@ -180,6 +188,7 @@ func (t *Table) scanRows(v interface{}, r *sql.Rows) error {
 }
 
 func (t *Table) SelectSkipLimit(where map[string]string, model IModel, orderBy string, skip int, limit int, v interface{}) error {
+	t.GetDB()
 	var qDate = " deleted_at is null "
 	for key, val := range where {
 		qDate += " AND " + key + "=" + val
@@ -206,6 +215,7 @@ func (t *Table) SelectSkipLimit(where map[string]string, model IModel, orderBy s
 }
 
 func (t *Table) SelectMany(model IModel, where map[string]string, orderBy string, skip int, limit int, v interface{}) error {
+	t.GetDB()
 	var qDate = " deleted_at is null "
 	for key, val := range where {
 		qDate += " AND " + key + "=" + val
@@ -231,6 +241,7 @@ func (t *Table) SelectMany(model IModel, where map[string]string, orderBy string
 }
 
 func (t *Table) SelectCustomMany(model IModel, where string, orderBy string, skip int, limit int, v interface{}) error {
+	t.GetDB()
 	var cells, err = t.GetCells(model)
 	if err != nil {
 		cells = "*"
@@ -253,6 +264,7 @@ func (t *Table) SelectCustomMany(model IModel, where string, orderBy string, ski
 }
 
 func (t *Table) SelectCustomSkipLimit(where string, model IModel, orderBy string, skip int, limit int, v interface{}) error {
+	t.GetDB()
 	var cells, err = t.GetCells(model)
 	if err != nil {
 		cells = "*"
@@ -274,6 +286,7 @@ func (t *Table) SelectCustomSkipLimit(where string, model IModel, orderBy string
 }
 
 func (t *Table) Count(where map[string]string) (int64, error) {
+	t.GetDB()
 	var q = fmt.Sprintf(SelectCount, t.TableName)
 	if len(where) > 0 {
 		var w string
@@ -294,6 +307,7 @@ func (t *Table) Count(where map[string]string) (int64, error) {
 }
 
 func (t *Table) UnsafeSelectMany(cells, where, orderBy string, skip int, limit int, v interface{}) error {
+	t.GetDB()
 	var q = fmt.Sprintf(UnsafeSelect, t.TableName, cells, where)
 	if orderBy != "" {
 		q += " ORDER BY " + orderBy
@@ -337,6 +351,7 @@ func (t *Table) getColumns(s reflect.Value, rt reflect.Type) []interface{} {
 }
 
 func (t *Table) SelectDistinct(where map[string]string, columns []string, v interface{}) error {
+	t.GetDB()
 	var qDate = " deleted_at is null "
 	for key, val := range where {
 		qDate += " AND " + key + "=" + val

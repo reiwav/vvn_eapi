@@ -39,7 +39,7 @@ COPY ./wooribank_cms ./
 # COPY . .
 RUN npm run build --prod
 
-RUN mv ./dist/ /go/src/app/eapi/admin
+RUN mv ./dist/* /go/src/app/eapi/admin
 
 # # FROM nginx:1.21.3
 

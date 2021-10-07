@@ -5,7 +5,6 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"database/sql"
-	"eapi/dao"
 	"eapi/reiway/tibero"
 	"encoding/hex"
 	"fmt"
@@ -14,7 +13,7 @@ import (
 
 var tableUser = &tibero.Table{
 	TableName: "jhi_user",
-	DB:        dao.Database(),
+	DB:        tibero.GetDB(),
 }
 
 func NewTable() error {

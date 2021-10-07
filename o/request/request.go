@@ -1,14 +1,13 @@
 package request
 
 import (
-	"eapi/dao"
 	"eapi/o/file"
 	"eapi/reiway/tibero"
 )
 
 var tableRequest = tibero.Table{
 	TableName: "requests",
-	DB:        dao.Database(),
+	DB:        tibero.GetDB(),
 }
 
 func NewTable() error {
